@@ -1,3 +1,5 @@
+import datetime
+
 lightBlueTheme = "\033[36m"
 whiteTheme = "\033[37m"
 
@@ -39,5 +41,21 @@ class PhoneBook:
         self.surname = ""
         self.phNumbers = NumberTypes()
         self.birthdate = ""
+
     def __str__(self):
         return "%s %s %s %s" % (self.name, self.surname, self.birthdate, self.phNumbers)
+
+    def countAge(self, inStr):
+        if self.birthdate:
+            today = datetime.date.today()
+            age = today.year - int(self.birthdate[6:]) - \
+                      ( (today.month + today.day) < ( int(self.birthdate[3:5]) + int(self.birthdate[:2]) ) )
+            if inStr:
+                message = self.name + ' ' + self.surname + "'s age is " + str(age)
+                return message
+            else:
+                return age
+        elif not inStr:
+            return False
+        else:
+            return " \033[37mImpossible to get the age - birthdate field is not filled"
