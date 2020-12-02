@@ -170,14 +170,14 @@ while notQuitProgram:
             print(message)
             indexes = PhoneBookEditor.whileInterface(currentPhoneBook, lenOfBook + 1)
             os.system("cls")
-            if indexes:
+            if indexes != '*':
                 i = 1
                 print(whiteTheme, "The results of search:")
                 for index in indexes:
                     print(whiteTheme, i, '.', ' ', currentPhoneBook[index], sep="")
                     i += 1
                 quitCom = PhoneBookEditor.mainMenuYN("search for another record", "Quit to main menu?\n")
-            elif indexes == '*':
+            else:
                 quitCom = True
             print(whiteTheme)
             os.system("cls")
