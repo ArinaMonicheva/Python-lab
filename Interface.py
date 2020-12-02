@@ -4,6 +4,7 @@ import os
 import time
 
 
+os.system("cls")
 usersPhoneBook = open("Phone_Book.txt", 'r', encoding="utf8")
 toParse = usersPhoneBook.read()
 usersPhoneBook.close()
