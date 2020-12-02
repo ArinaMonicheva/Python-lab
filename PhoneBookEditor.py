@@ -199,10 +199,7 @@ def editClassObjNums(nums):
     homes = list(nums.homeNums)
     phoneNums = []
     settings = []
-    lastChange = ""
     while edit:
-        if lastChange:
-            print(lastChange)
         i = 1
         print(whiteTheme, "Current catalogue:\n",
               "(don't worry, the actual record would not be edited before you confirm all edits\n")
@@ -235,7 +232,7 @@ def editClassObjNums(nums):
             if edit == '1':
                 index, category = chooseNumber(i, "edit", len(mobiles), len(works), len(homes))
                 if index == '*':
-                    return False
+                    return nums
                 newNum = createNumbers(True)
                 if not newNum:
                     return False
@@ -250,7 +247,7 @@ def editClassObjNums(nums):
                 if not (len(mobiles) + len(works) + len(homes)) < 2:
                     index, category = chooseNumber(i, "delete", len(mobiles), len(works), len(homes))
                     if index == '*':
-                        return False
+                        return nums
                     if category == 'm':
                         mobiles.pop(index)
                     elif category == 'w':
@@ -288,7 +285,7 @@ def editClassObjNums(nums):
                 return newNumCatalogue
             elif edit == '*':
                 os.system("cls")
-                return False
+                return nums
             else:
                 print(whiteTheme, "Error! No such command in list. Please, try again")
         os.system("cls")
@@ -323,10 +320,11 @@ def chooseNumber(i, message, mlen, wlen, hlen):
 # ☆¯'*´*•.,☆,.•*’*´¯☆ This function does not change the actual records,
 # but prepares new fields for rerecord ☆¯'*´*•.,☆,.•*’*´¯☆
 # interface
-def editsCommandCenter(name="", surname="", birthdate="", phNums=""):
+def editsCommandCenter(name, surname, birthdate, phNums, currentPhoneBook, lenOfBook):
     whiteTheme = "\033[37m"
     lightBlueTheme = "\033[36m"
     edit = True
+    newNums = ""
     while edit:
         print(whiteTheme, "The current record is", lightBlueTheme, "\n\n",
               name + ' ' + surname + ' ' + birthdate)
@@ -346,33 +344,51 @@ def editsCommandCenter(name="", surname="", birthdate="", phNums=""):
                 edit = False
                 break
             elif edit == '2':
-                name = editNames("name")
-                if not name:
-                    return False
+                temp = editNames("name")
+                if not temp:
+                    return False, False, False, False
+                isUnique = browseRecords(temp, 'ns', currentPhoneBook, range(lenOfBook), surname)
+                if isUnique == -1:
+                    name = temp
+                else:
+                    print(whiteTheme, "Error! The name+surname is a unique identifier!\n",
+                          "This name+surname is already used in phone book!\n",
+                          "Please, try again")
+                    time.sleep(4)
                 break
             elif edit == '3':
-                surname = editNames("surname")
-                if not surname:
-                    return False
+                temp = editNames("surname")
+                if not temp:
+                    return False, False, False, False
+                isUnique = browseRecords(name, 'ns', currentPhoneBook, range(lenOfBook), temp)
+                if isUnique == -1:
+                    surname = temp
+                else:
+                    print(whiteTheme, "Error! The name+surname is a unique identifier!\n",
+                          "This name+surname is already used in phone book!\n",
+                          "Please, try again")
+                    time.sleep(4)
                 break
             elif edit == '4':
                 birthdate = editDate(True)
                 if birthdate == '*':
-                    return birthdate
+                    return False, False, False, False
                 break
             elif edit == '5':
-                phNums = editClassObjNums(phNums)
-                if not phNums:
-                    return False
+                newNums = editClassObjNums(phNums)
+                if not newNums:
+                    return False, False, False, False
                 break
             elif edit == '*':
                 os.system("cls")
-                return False
+                return False, False, False, False
             else:
                 print(whiteTheme, "Error! No such command in list. Please, try again")
         os.system("cls")
-
-    return name, surname, birthdate, phNums
+    if newNums:
+        return name, surname, birthdate, newNums
+    else:
+        return name, surname, birthdate, phNums
 
 
 def browseRecords(toSearch, field, currentPhoneBook, indexesForList, toSearch2=""):
@@ -428,7 +444,7 @@ def whileInterface(currentPhoneBook, lenOfBook):
             answer = input()
             if re.match('^[12345* ]+$', answer):
                 if "5" in answer or '*' in answer:
-                    return
+                    return '*'
                 theOrder = answer.split()
                 theOrder = set(theOrder)
                 break
@@ -441,12 +457,12 @@ def whileInterface(currentPhoneBook, lenOfBook):
             if field == '1':
                 name = editNames("name")
                 if not name:
-                    return False
+                    return '*'
                 indexes = browseRecords(name, "n", currentPhoneBook, indexes)
             elif field == '2':
                 surname = editNames("surname")
                 if not surname:
-                    return False
+                    return '*'
                 indexes = browseRecords(surname, "s", currentPhoneBook, indexes)
             elif field == '3':
                 birthdate = editDate(True)
@@ -456,14 +472,14 @@ def whileInterface(currentPhoneBook, lenOfBook):
             elif field == '4':
                 nums = createNumbers(True)
                 if not nums:
-                    return False
+                    return '*'
                 indexes = browseRecords(nums, "pn", currentPhoneBook, indexes)
         if indexes:
             return indexes
         else:
             print(whiteTheme, "There was not found records, that meet the conditions of search")
             if not (mainMenuYN("quit to main menu", "Would you like to try again?\n")):
-                return []
+                return '*'
 
 
 # interface
@@ -471,7 +487,7 @@ def printNChooseRes(currentPhoneBook, message, lenOfBook):
     lightBlueTheme = "\033[36m"
     whiteTheme = "\033[37m"
     indexes = whileInterface(currentPhoneBook, lenOfBook)
-    if indexes:
+    if indexes != '*':
         print(whiteTheme, "The results of search:")
         i = 1
         for index in indexes:
@@ -501,7 +517,7 @@ def printNChooseRes(currentPhoneBook, message, lenOfBook):
                 else:
                     print(whiteTheme, "Error! No such command in list. Please, try again")
     else:
-        return '*'
+        return indexes
 
 
 # interface
@@ -551,12 +567,13 @@ def nearestBDs(currentPhoneBook):
             day = int(today.day) + 1
         months = [int(today.month), int(today.month) + 1]
     for record in currentPhoneBook:
-        BDmonth = int(record.birthdate[3:5])
-        Bday = int(record.birthdate[:2])
-        if BDmonth == months[0] and int(today.day) <= Bday <= day:
-            nearBDs.append(record)
-        elif len(months)>1 and BDmonth == months[1] and Bday <= day:
-            nearBDs.append(record)
+        if record.birthdate:
+            BDmonth = int(record.birthdate[3:5])
+            Bday = int(record.birthdate[:2])
+            if BDmonth == months[0] and int(today.day) <= Bday <= day:
+                nearBDs.append(record)
+            elif len(months) > 1 and BDmonth == months[1] and Bday <= day:
+                nearBDs.append(record)
     return nearBDs
 
 

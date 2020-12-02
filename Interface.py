@@ -100,8 +100,13 @@ while notQuitProgram:
             newNums = PhoneBookModule.NumberTypes()
             newNums.writeByTypes(newNumbers, settings)
             print(message, sep="")
-            newName, newSurname, newBirthdate, newNums = \
-                PhoneBookEditor.editsCommandCenter(newName, newSurname, newBirthdate, newNums)
+            newName2, newSurname2, newBirthdate2, newNums2 = \
+                PhoneBookEditor.editsCommandCenter(newName, newSurname, newBirthdate, newNums,
+                                                   currentPhoneBook, lenOfBook + 1)
+            if newName2:
+                 newName, newSurname, newBirthdate, newNums = newName2, newSurname2, newBirthdate2, newNums2
+            else:
+                break
             newName = newName.replace(' ', '.')
             newSurname = newSurname.replace(' ', '.')
             newField = newName + ' ' + newSurname + ' ' + newBirthdate
@@ -110,6 +115,8 @@ while notQuitProgram:
             print(whiteTheme)
             os.system("cls")
             break
+        print(whiteTheme)
+        os.system("cls")
     elif notQuitProgram == "3":
         os.system("cls")
         quitCom = 0
@@ -119,11 +126,18 @@ while notQuitProgram:
             index = PhoneBookEditor.printNChooseRes(currentPhoneBook, "edit", lenOfBook + 1)
             os.system("cls")
             if not index == '*':
-                currentPhoneBook[index].name, currentPhoneBook[index].surname, \
-                currentPhoneBook[index].birthdate, currentPhoneBook[index].phNumbers = \
+
+                newName2, newSurname2, newBirthdate2, newNums2 = \
                 PhoneBookEditor.editsCommandCenter(currentPhoneBook[index].name, currentPhoneBook[index].surname,
-                                                   currentPhoneBook[index].birthdate, currentPhoneBook[index].phNumbers)
-                print(whiteTheme, "The record was edited\n")
+                                               currentPhoneBook[index].birthdate, currentPhoneBook[index].phNumbers,
+                                               currentPhoneBook, lenOfBook + 1)
+                if newName2:
+                    currentPhoneBook[index].name, currentPhoneBook[index].surname, \
+                    currentPhoneBook[index].birthdate, currentPhoneBook[index].phNumbers = \
+                        newName2, newSurname2, newBirthdate2, newNums2
+                    print(whiteTheme, "The record was edited\n")
+                else:
+                    break
             else:
                 print(whiteTheme, "Edit was denied, chosen record is remained as it was\n")
             quitCom = PhoneBookEditor.mainMenuYN("edit another record", "Quit to main menu?\n")
@@ -162,7 +176,7 @@ while notQuitProgram:
                     print(whiteTheme, i, '.', ' ', currentPhoneBook[index], sep="")
                     i += 1
                 quitCom = PhoneBookEditor.mainMenuYN("search for another record", "Quit to main menu?\n")
-            else:
+            elif indexes == '*':
                 quitCom = True
             print(whiteTheme)
             os.system("cls")
